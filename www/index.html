@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+    <!-- <script src="js/angular103.min.js"></script> -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+</head>
+<body ng-app="myApp" class="ng-scope">
+<div class="row">
+    <div ng-controller="myCtrl" class="ng-scope ng-binding">
+    
+    <div class="col-xs-10 col-xs-offset-1" style="border: solid 1px; padding: 10px; margin-top: 10px;">
+        <h2>Add new ticket</h2>
+        <form ng-submit="getCode()">
+            <div class="form-group">
+                <label>Loai ve</label><br>
+                <input type="radio" name="type" id="type1" value="1" checked="">May cam tay<br>
+                <input type="radio" name="type" id="type2" value="2">Tren xe buyt<br>
+            </div>
+            <div class="form-group">
+                <label>Ma so xe</label><br>
+                <input type="text" class="form-control" id="codeOfVehicle" placeholder="Nhap 3 so" required="" pattern="[0-9]{3}" title="Ma so xe khong hop le" style="width: 50%;">
+            </div>
+            <div class="form-group">
+                <label>Menh gia ve</label><br>
+                <input type="radio" name="price" id="price1" value="01" checked="">12.000 dong<br>
+                <input type="radio" name="price" id="price2" value="02">18.000 dong<br>
+            </div>
+            <button type="submit" id="generate" class="btn">Generate QRCode</button><br><br>
+        </form>
+
+            <div class="form-group">
+                <label>QR Code: </label>
+                <input name="" value="{{qr}}" id="rs" readonly="" style="width: 30%">
+                <button class="badges" data-clipboard-target="#rs" id="copyToClipboard">Copy</button>
+            </div>
+    </div>
+</div>
+
+<script src="js/jquery-1.9.1.js"></script>
+
+<script src="js/dist/clipboard.min.js"></script>
+<!-- <script type="text/javascript">
+    (function(){
+        new Clipboard('#copyToClipboard');
+    })();
+</script>
+ -->
+
+<script type="text/javascript">
+    var clipboard = new Clipboard('#copyToClipboard');
+
+    clipboard.on('success', function(e) {
+        console.info('Action:', e.action);
+        console.info('Text:', e.text);
+        console.info('Trigger:', e.trigger);
+
+        e.clearSelection();
+    });
+
+    clipboard.on('error', function(e) {
+        console.error('Action:', e.action);
+        console.error('Trigger:', e.trigger);
+    });
+</script>
+
+<script type="text/javascript">
+angular.module('myApp', [])
+.controller('myCtrl', function ($scope, $http) {
+    
+    $scope.result = "None";
+    $scope.newName = "";
+    
+    $scope.getCode = function(){
+            var qrcode = "";//qrcode
+
+            var type = document.querySelector('input[name="type"]:checked').value;
+            var price = document.querySelector('input[name="price"]:checked').value;
+            var codeOfVehicle = document.getElementById('codeOfVehicle').value;
+
+            var pv = "01";
+            var timeDay = new Date();
+            var year = "" + timeDay.getFullYear().toString();
+            year = year.slice(2, 4);
+            var month = timeDay.getMonth() + 1;
+            if (month < 10){
+                month = "0" + month;
+            }
+            var date = timeDay.getDate();
+            if (date < 10){
+                date = "0" + date;
+            }
+            var hour = timeDay.getHours();
+            if (hour < 10){
+                hour = "0" + hour;
+            }
+            var minute = timeDay.getMinutes();
+            if (minute < 10){
+                minute = "0" + minute;
+            }
+            var second = timeDay.getSeconds();
+            if (second < 10){
+                second = "0" + second;
+            }
+            var time = "" + hour + minute + second;
+
+            var secureNumber = "";//contain 4 number random
+            var secureNumberLow = 0;
+            var secureNumberHigh = 9999;
+            var tempSecureNumber = Math.floor(Math.random() * secureNumberHigh) + secureNumberLow;
+
+            if (tempSecureNumber / 1000 < 1){
+                if (tempSecureNumber / 100 < 1){
+                    if (tempSecureNumber / 10 < 1){
+                        secureNumber += "000";
+                    }
+                    else{
+                        secureNumber += "00";
+                    }
+                }
+                else{
+                    secureNumber += "0";
+                }
+            }
+            secureNumber += tempSecureNumber.toString();
+
+            var ticketNumber = "000001";//contain 6 number auto increase
+
+            var preventive = "";//contain 10 character
+            var arrPreventive = "";
+            for (i = 65; i < 91; i++){
+                arrPreventive += String.fromCharCode(i);
+                arrPreventive += String.fromCharCode(i + 32);
+            }
+            for (i = 48; i < 58; i++){
+                arrPreventive += String.fromCharCode(i);
+            }
+            var tmp;
+            for (i = 0; i < 10; i++){
+                tmp = Math.floor(Math.random() * arrPreventive.length);
+                preventive += arrPreventive[tmp];
+            }
+
+            
+            qrcode = pv + type + codeOfVehicle + year + secureNumber + month + ticketNumber + date + price + time + preventive;
+            
+            $scope.qr = qrcode;
+    }                   
+})
+
+
+</script>
+
+
+
+</body>
+
+</html>
